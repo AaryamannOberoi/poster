@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>for prapti</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💌</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#150d1e;
+    --bg-mid:#2b1a3d;
+    --accent-rose:#f2a9a0;
+    --accent-gold:#e8c07d;
+    --ink-light:#f7ecdf;
+    --ink-soft:#c9b7d6;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    margin:0;
+    background:var(--bg-deep);
+    color:var(--ink-light);
+    font-family:'Sora', sans-serif;
+    overflow-x:hidden;
+    width:100%;
+  }
+
+  #bg-canvas{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+    display:block;
+    background:radial-gradient(ellipse at 50% 20%, var(--bg-mid) 0%, var(--bg-deep) 65%);
+  }
+
+  /* ---------- KITTY COMPANION (3D box + cat) ---------- */
+
+  #kitty-canvas{
+    position:fixed;
+    top:0;
+    right:0;
+    width:44vw;
+    height:100vh;
+    z-index:2;
+    display:block;
+    pointer-events:none;
+    background:radial-gradient(ellipse at 60% 44%, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.45) 44%, rgba(0,0,0,0) 74%);
+  }
+
+  @media (max-width:900px){
+    #kitty-canvas{
+      top:auto;
+      right:14px;
+      bottom:14px;
+      width:140px;
+      height:140px;
+      border-radius:16px;
+      background:radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.15) 100%);
+      box-shadow:0 10px 30px -8px rgba(0,0,0,0.6);
+    }
+  }
+
+  main{
+    position:relative;
+    z-index:1;
+  }
+
+  section{
+    min-height:100vh;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:6vh 6vw;
+  }
+
+  /* ---------- HERO ---------- */
+
+  .hero{
+    gap:2.2rem;
+    text-align:center;
+  }
+
+  .hero-stage{
+    perspective:1200px;
+    width:min(78vw, 380px);
+  }
+
+  .polaroid{
+    background:#fbf6ee;
+    padding:14px 14px 46px 14px;
+    border-radius:4px;
+    box-shadow:0 30px 60px -15px rgba(0,0,0,0.65), 0 10px 25px -8px rgba(0,0,0,0.5);
+    transform-style:preserve-3d;
+    transform:perspective(1200px) rotateX(0deg) rotateY(0deg);
+    transition:transform 0.15s ease-out;
+    opacity:0;
+    animation:hero-drop 1.3s cubic-bezier(.16,.9,.28,1) 0.2s forwards;
+  }
+
+  @keyframes hero-drop{
+    from{
+      opacity:0;
+      transform:perspective(1200px) translateY(-60px) rotateX(55deg) rotateZ(-6deg) scale(.85);
+    }
+    to{
+      opacity:1;
+      transform:perspective(1200px) translateY(0) rotateX(0deg) rotateZ(-2deg) scale(1);
+    }
+  }
+
+  .polaroid img{
+    display:block;
+    width:100%;
+    height:auto;
+    border-radius:2px;
+  }
+
+  .polaroid figcaption{
+    display:block;
+    margin-top:14px;
+    font-family:'Caveat', cursive;
+    font-size:1.3rem;
+    color:#4a3f52;
+    text-align:center;
+  }
+
+  .hero-name{
+    font-family:'Sora', sans-serif;
+    font-weight:300;
+    font-size:clamp(2.6rem, 9vw, 4.5rem);
+    letter-spacing:0.02em;
+    margin:0;
+    color:var(--ink-light);
+    text-shadow:0 0 40px rgba(242,169,160,0.35);
+    opacity:0;
+    animation:fade-up 1s ease-out 1s forwards;
+  }
+
+  .hero-name em{
+    font-style:normal;
+    color:var(--accent-rose);
+  }
+
+  @keyframes fade-up{
+    from{ opacity:0; transform:translateY(16px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .scroll-cue{
+    position:absolute;
+    bottom:5vh;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    color:var(--ink-soft);
+    font-size:0.85rem;
+    letter-spacing:0.08em;
+    opacity:0;
+    animation:fade-up 1s ease-out 1.8s forwards;
+  }
+
+  .scroll-cue .dot{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--accent-gold);
+    animation:cue-bounce 1.6s ease-in-out infinite;
+  }
+
+  @keyframes cue-bounce{
+    0%,100%{ transform:translateY(0); opacity:0.4; }
+    50%{ transform:translateY(10px); opacity:1; }
+  }
+
+  /* ---------- NOTE ---------- */
+
+  .note{
+    min-height:auto;
+    padding:22vh 6vw;
+    justify-content:flex-start;
+    align-items:flex-start;
+  }
+
+  .note-inner{
+    max-width:min(620px, 56vw);
+    margin:0 auto 0 2vw;
+    perspective:900px;
+    display:flex;
+    flex-direction:column;
+    gap:2.6rem;
+    position:relative;
+    z-index:4;
+  }
+
+  @media (max-width:900px){
+    .note-inner{
+      max-width:640px;
+      margin:0 auto;
+    }
+  }
+
+  .note-line{
+    font-family:'Caveat', cursive;
+    font-weight:600;
+    font-size:clamp(1.6rem, 4.2vw, 2.5rem);
+    line-height:1.35;
+    color:var(--ink-light);
+    margin:0;
+    max-width:22ch;
+    transform-origin:top left;
+    transform:rotateX(-65deg) translateY(24px);
+    opacity:0;
+    transition:transform 0.9s cubic-bezier(.2,.75,.3,1), opacity 0.8s ease-out;
+  }
+
+  .note-line.is-visible{
+    transform:rotateX(0deg) translateY(0);
+    opacity:1;
+  }
+
+  .note-line.accent{ color:var(--accent-rose); }
+  .note-line.small{
+    font-family:'Sora', sans-serif;
+    font-weight:400;
+    font-size:1rem;
+    color:var(--ink-soft);
+    letter-spacing:0.03em;
+  }
+
+  /* ---------- CONFESSION SCROLL ---------- */
+
+  .confession{
+    justify-content:center;
+    align-items:flex-start;
+    min-height:80vh;
+  }
+
+  .scroll-roll{
+    position:relative;
+    z-index:4;
+    width:min(500px, 84vw);
+    margin-left:2vw;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    transform-origin:50% 6px;
+    filter:drop-shadow(0 22px 40px rgba(0,0,0,0.5));
+    transition:transform 0.4s ease;
+  }
+
+  .scroll-roll:not(.is-open){
+    animation:scroll-sway 3.6s ease-in-out infinite;
+  }
+
+  @keyframes scroll-sway{
+    0%,100%{ transform:rotate(-1.6deg); }
+    50%{ transform:rotate(1.6deg); }
+  }
+
+  .scroll-roll:not(.is-open):hover{ animation-play-state:paused; }
+  .scroll-roll:focus-visible{ outline:2px solid var(--accent-gold); outline-offset:10px; border-radius:6px; }
+
+  .scroll-rod{
+    position:relative;
+    height:22px;
+    border-radius:11px;
+    background:linear-gradient(180deg,#f3ddba 0%,#c9a877 52%,#a07f55 100%);
+    box-shadow:0 3px 8px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,255,255,0.4);
+  }
+
+  .scroll-rod::before,
+  .scroll-rod::after{
+    content:"";
+    position:absolute;
+    top:50%;
+    width:15px;
+    height:30px;
+    border-radius:5px;
+    transform:translateY(-50%);
+    background:linear-gradient(180deg,#ecd3a8,#b5926640);
+    box-shadow:0 3px 6px rgba(0,0,0,0.55);
+  }
+  .scroll-rod::before{ left:-9px; }
+  .scroll-rod::after{ right:-9px; }
+
+  .scroll-rod-top{ z-index:3; }
+  .scroll-rod-bottom{ margin-top:-6px; z-index:3; }
+
+  .scroll-paper{
+    position:relative;
+    margin:-5px 12px 0;
+    height:0;
+    overflow:hidden;
+    border-radius:2px;
+    background:
+      repeating-linear-gradient(0deg, rgba(120,92,58,0.05) 0 22px, rgba(120,92,58,0.09) 22px 24px),
+      linear-gradient(180deg,#f7ecd6 0%,#efe0c2 100%);
+    box-shadow:inset 0 0 44px rgba(120,92,58,0.28);
+    transition:height 0.9s cubic-bezier(.2,.75,.3,1);
+  }
+
+  .scroll-paper-inner{
+    padding:2.4rem 1.9rem 1.6rem;
+    display:flex;
+    flex-direction:column;
+    gap:1.4rem;
+    opacity:0;
+    transform:translateY(-12px);
+    transition:opacity .6s ease .34s, transform .6s ease .34s;
+  }
+  @media (max-width:560px){
+    .scroll-paper-inner{ padding:1.9rem 1.3rem 1.3rem; gap:1.1rem; }
+  }
+  .scroll-roll.is-open .scroll-paper-inner{ opacity:1; transform:none; }
+
+  .confession-line,
+  .confession-ask{
+    color:#4a3f52;
+    font-size:clamp(1.5rem, 3.6vw, 2.1rem);
+    max-width:none;
+    margin:0;
+    transform:none;
+    opacity:1;
+    line-height:1.3;
+  }
+  .confession-line.accent{ color:#b5544c; }
+
+  .confession-q{
+    margin-top:0.4rem;
+    opacity:0;
+    transform:translateY(8px);
+    transition:opacity .5s ease, transform .5s ease;
+    pointer-events:none;
+  }
+  .confession-q.show{ opacity:1; transform:none; pointer-events:auto; }
+  /* these reveal on interaction, never on scroll — beat any .is-visible */
+  .confession-q:not(.show){ opacity:0 !important; }
+  .confession-done:not(.show){ opacity:0 !important; }
+
+  .confession-ask{ color:#5b4740; }
+
+  .confession-choices{
+    position:relative;
+    height:118px;
+    margin-top:0.7rem;
+  }
+
+  .cbtn{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:1.5rem;
+    line-height:1;
+    padding:0.5rem 1.7rem;
+    border-radius:999px;
+    border:2px solid #4a3f52;
+    background:#fff7ea;
+    color:#4a3f52;
+    cursor:pointer;
+  }
+  #btn-yes{ position:absolute; left:0; top:0; transition:transform .14s ease, background .2s ease, color .2s ease; }
+  #btn-yes:hover{ background:#4a3f52; color:#fff7ea; transform:translateY(-2px); }
+
+  .cbtn-no{
+    position:absolute;
+    left:120px;
+    top:0;
+    transition:left .19s cubic-bezier(.34,1.56,.64,1), top .19s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .confession-done{
+    color:#b5544c !important;
+    font-size:clamp(1.4rem, 3.4vw, 1.9rem);
+    margin:0.2rem 0 0;
+    max-width:none;
+    transform:translateY(6px);
+    opacity:0;
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .confession-done.show{ opacity:1; transform:none; }
+
+  .scroll-hint{
+    display:block;
+    text-align:center;
+    margin-top:1.1rem;
+    font-family:'Sora', sans-serif;
+    font-size:0.82rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--accent-gold);
+    animation:hint-pulse 2s ease-in-out infinite;
+  }
+  @keyframes hint-pulse{ 0%,100%{ opacity:0.35; } 50%{ opacity:0.9; } }
+  .scroll-roll.is-open .scroll-hint{ opacity:0; pointer-events:none; transition:opacity .4s ease; animation:none; }
+
+  /* ---------- BANNER ---------- */
+
+  .banner{
+    text-align:center;
+    gap:1.2rem;
+    position:relative;
+    z-index:4;
+  }
+
+  /* on wide screens, keep the banner clear of the fixed companion on the right */
+  @media (min-width:901px){
+    .banner{ padding-right:38vw; }
+  }
+
+  .banner-kitty{
+    width:min(190px, 46vw);
+    height:auto;
+    margin-top:1.2rem;
+    border-radius:18px;
+    filter:drop-shadow(0 18px 34px rgba(0,0,0,0.45));
+    opacity:0;
+    transform:translateY(22px) scale(0.82) rotate(-7deg);
+    transition:opacity 0.9s ease 0.15s, transform 1s cubic-bezier(.16,.9,.28,1) 0.15s;
+  }
+  .banner-kitty.is-visible{
+    opacity:1;
+    transform:translateY(0) scale(1) rotate(0);
+  }
+
+  .banner-stage{
+    perspective:1000px;
+  }
+
+  .banner h2{
+    font-family:'Sora', sans-serif;
+    font-weight:300;
+    font-size:clamp(2.4rem, 8vw, 4.8rem);
+    margin:0;
+    color:var(--ink-light);
+    letter-spacing:0.01em;
+    transform:rotateX(-90deg);
+    opacity:0;
+    transition:transform 1.1s cubic-bezier(.16,.9,.3,1), opacity 0.9s ease-out;
+  }
+
+  .banner h2.is-visible{
+    transform:rotateX(0deg);
+    opacity:1;
+  }
+
+  .banner h2 em{
+    font-style:normal;
+    color:var(--accent-gold);
+  }
+
+  .banner p{
+    font-family:'Caveat', cursive;
+    font-weight:500;
+    font-size:clamp(1.2rem, 3.4vw, 1.6rem);
+    color:var(--ink-soft);
+    margin:0;
+    opacity:0;
+    transition:opacity 0.9s ease-out 0.35s, transform 0.9s ease-out 0.35s;
+    transform:translateY(14px);
+  }
+
+  .banner p.is-visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  .banner .heart{
+    margin-top:1.4rem;
+    font-size:1.6rem;
+    opacity:0;
+    transition:opacity 1s ease-out 0.7s, transform 1s ease-out 0.7s;
+    transform:scale(0.6);
+  }
+
+  .banner .heart.is-visible{
+    opacity:1;
+    transform:scale(1);
+  }
+
+  footer{
+    position:relative;
+    z-index:4;
+    text-align:center;
+    padding:4vh 6vw 6vh;
+    font-size:0.78rem;
+    color:rgba(201,183,214,0.45);
+    font-family:'Sora', sans-serif;
+    letter-spacing:0.03em;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .polaroid, .hero-name, .scroll-cue, .note-line, .banner h2, .banner p, .banner .heart{
+      animation:none !important;
+      transition:opacity 0.3s ease-out !important;
+      transform:none !important;
+      opacity:1 !important;
+    }
+    /* companion scroll: no idle sway / pulse, near-instant unroll — but it
+       still only opens on click, and the dodge still works */
+    .scroll-roll:not(.is-open){ animation:none !important; }
+    .scroll-hint{ animation:none !important; opacity:0.7 !important; }
+    .scroll-paper{ transition:height 0.25s linear !important; }
+    .scroll-paper-inner,
+    .confession-q,
+    .confession-done{ transition:opacity 0.25s ease-out !important; }
+    .cbtn-no{ transition:none !important; }
+    .banner-kitty{
+      transition:opacity 0.4s ease-out !important;
+      transform:none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<canvas id="kitty-canvas" aria-hidden="true"></canvas>
+
+<main>
+
+  <section class="hero">
+    <div class="hero-stage">
+      <figure class="polaroid" id="polaroid">
+        <img src="prapti.jpg" alt="the two of us, mid-tease, on a call" />
+        <figcaption>exhibit A: the memory in question</figcaption>
+      </figure>
+    </div>
+    <h1 class="hero-name">for <em>prapti</em></h1>
+    <div class="scroll-cue"><span>keep going</span><span class="dot"></span></div>
+  </section>
+
+  <section class="note">
+    <div class="note-inner" id="note-inner">
+      <p class="note-line">okay, confession time.</p>
+      <p class="note-line">it's been 2 days since you left,</p>
+      <p class="note-line">and somehow my phone still thinks you're typing.</p>
+      <p class="note-line accent">sms sms sms sms sms —</p>
+      <p class="note-line small">(yeah. that was me. the whole time.)</p>
+      <p class="note-line">there's no "other friend."</p>
+      <p class="note-line">there's just been a very quiet couple of days,</p>
+      <p class="note-line">and a very loud amount of missing you.</p>
+      <p class="note-line">so — sorry for teasing you on that call.</p>
+      <p class="note-line accent">you're the only cutie i miss.</p>
+    </div>
+  </section>
+
+  <section class="confession">
+    <div class="scroll-roll" id="scroll-roll" role="button" tabindex="0"
+         aria-label="a little scroll — tap to unroll it" aria-expanded="false">
+      <div class="scroll-rod scroll-rod-top"></div>
+      <div class="scroll-paper" id="scroll-paper">
+        <div class="scroll-paper-inner">
+          <p class="note-line confession-line">ur the only cutie i miss</p>
+          <p class="note-line confession-line accent">and i loved this territorial side... its v hot 👀</p>
+          <div class="confession-q" id="confession-q" aria-hidden="true">
+            <p class="note-line confession-ask">thodi si chidhi thi ya nahi?</p>
+            <div class="confession-choices" id="confession-choices">
+              <button type="button" class="cbtn" id="btn-yes">yes</button>
+              <button type="button" class="cbtn cbtn-no" id="btn-no">no</button>
+            </div>
+            <p class="note-line confession-done accent" id="confession-done" aria-hidden="true">thought so 🫶</p>
+          </div>
+        </div>
+      </div>
+      <div class="scroll-rod scroll-rod-bottom"></div>
+      <span class="scroll-hint" id="scroll-hint">tap to unroll</span>
+    </div>
+  </section>
+
+  <section class="banner">
+    <div class="banner-stage">
+      <h2 id="banner-h">welcome back, <em>prapti</em>.</h2>
+    </div>
+    <p id="banner-p">you said "make a poster." this felt more accurate.</p>
+    <img class="banner-kitty" id="banner-kitty" src="hello-kitty-final.png"
+         alt="a little cat holding a heart" />
+    <div class="heart" id="banner-heart">🤍</div>
+  </section>
+
+</main>
+
+<footer>made with too much thought and one (1) photo</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+  // ---------------- respect reduced motion ----------------
+  var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------------- THREE.js ambient particle field ----------------
+  (function(){
+    var canvas = document.getElementById('bg-canvas');
+    var renderer = new THREE.WebGLRenderer({ canvas:canvas, alpha:true, antialias:true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 100);
+    camera.position.z = 12;
+
+    // soft circular glow sprite, drawn procedurally (no external asset needed)
+    function makeGlowTexture(){
+      var size = 128;
+      var c = document.createElement('canvas');
+      c.width = c.height = size;
+      var ctx = c.getContext('2d');
+      var grad = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+      grad.addColorStop(0, 'rgba(255,255,255,1)');
+      grad.addColorStop(0.35, 'rgba(255,255,255,0.55)');
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,size,size);
+      var tex = new THREE.CanvasTexture(c);
+      return tex;
+    }
+    var glowTex = makeGlowTexture();
+
+    function buildField(count, color, size, spread){
+      var geo = new THREE.BufferGeometry();
+      var positions = new Float32Array(count*3);
+      for(var i=0;i<count;i++){
+        positions[i*3+0] = (Math.random()-0.5)*spread;
+        positions[i*3+1] = (Math.random()-0.5)*spread;
+        positions[i*3+2] = (Math.random()-0.5)*spread;
+      }
+      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      var mat = new THREE.PointsMaterial({
+        color:color,
+        size:size,
+        map:glowTex,
+        transparent:true,
+        opacity:0.8,
+        depthWrite:false,
+        blending:THREE.AdditiveBlending
+      });
+      return new THREE.Points(geo, mat);
+    }
+
+    var fieldRose = buildField(220, 0xf2a9a0, 0.5, 26);
+    var fieldGold = buildField(140, 0xe8c07d, 0.36, 22);
+    var fieldFar  = buildField(300, 0xffffff, 0.18, 34);
+    scene.add(fieldRose, fieldGold, fieldFar);
+
+    var group = new THREE.Group();
+    group.add(fieldRose, fieldGold, fieldFar);
+    scene.add(group);
+
+    var scrollT = 0;
+    var targetScrollT = 0;
+
+    function onScroll(){
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      targetScrollT = max > 0 ? window.scrollY / max : 0;
+    }
+    window.addEventListener('scroll', onScroll, { passive:true });
+
+    function onResize(){
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+    window.addEventListener('resize', onResize);
+
+    var mouseX = 0, mouseY = 0;
+    window.addEventListener('mousemove', function(e){
+      mouseX = (e.clientX / window.innerWidth - 0.5);
+      mouseY = (e.clientY / window.innerHeight - 0.5);
+    }, { passive:true });
+
+    var clock = new THREE.Clock();
+
+    function animate(){
+      requestAnimationFrame(animate);
+      var dt = clock.getDelta();
+
+      scrollT += (targetScrollT - scrollT) * 0.06;
+
+      if(!prefersReduced){
+        group.rotation.y += dt * 0.03;
+        group.rotation.x = Math.sin(scrollT * Math.PI) * 0.15;
+        camera.position.z = 12 - scrollT * 6;
+        camera.position.x += ((mouseX * 1.2) - camera.position.x) * 0.03;
+        camera.position.y += ((-mouseY * 1.2) - camera.position.y) * 0.03;
+        camera.lookAt(0,0,0);
+      } else {
+        camera.position.z = 12 - scrollT * 3;
+        camera.lookAt(0,0,0);
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+  })();
+
+  // ---------------- hero photo tilt ----------------
+  (function(){
+    if(prefersReduced) return;
+    var stage = document.querySelector('.hero-stage');
+    var card = document.getElementById('polaroid');
+    var rx = 0, ry = 0, tx = 0, ty = 0;
+
+    stage.addEventListener('mousemove', function(e){
+      var rect = stage.getBoundingClientRect();
+      var px = (e.clientX - rect.left) / rect.width - 0.5;
+      var py = (e.clientY - rect.top) / rect.height - 0.5;
+      tx = py * -14;
+      ty = px * 14;
+    });
+    stage.addEventListener('mouseleave', function(){ tx = 0; ty = 0; });
+
+    function loop(){
+      rx += (tx - rx) * 0.08;
+      ry += (ty - ry) * 0.08;
+      card.style.transform = 'perspective(1200px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg) rotateZ(-2deg)';
+      requestAnimationFrame(loop);
+    }
+    // let the entrance animation finish first
+    setTimeout(loop, 1600);
+  })();
+
+  // ---------------- kitty companion: 3D gift box + kawaii cat ----------------
+  (function(){
+    var canvas = document.getElementById('kitty-canvas');
+    if(!canvas || !window.THREE) return;
+
+    var renderer = new THREE.WebGLRenderer({ canvas:canvas, alpha:true, antialias:true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    function cssW(){ return canvas.clientWidth || 1; }
+    function cssH(){ return canvas.clientHeight || 1; }
+    renderer.setSize(cssW(), cssH(), false);
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(34, cssW() / cssH(), 0.1, 100);
+
+    function placeCamera(){
+      // narrow = tight square widget, wide = tall panel on the right
+      if(window.innerWidth <= 900){
+        camera.position.set(0, 0.95, 10);
+        camera.lookAt(0, 0.85, 0);
+      } else {
+        camera.position.set(0, 1.15, 9.2);
+        camera.lookAt(0, 0.78, 0);
+      }
+    }
+    placeCamera();
+
+    // ---- glowing white line-art materials ----
+    var lineMat = new THREE.LineBasicMaterial({
+      color:0xffffff, transparent:true, opacity:0.9,
+      blending:THREE.AdditiveBlending, depthWrite:false
+    });
+    var lineSoft = new THREE.LineBasicMaterial({
+      color:0xffffff, transparent:true, opacity:0.32,
+      blending:THREE.AdditiveBlending, depthWrite:false
+    });
+    var occludeMat = new THREE.MeshBasicMaterial({ color:0x05070d, transparent:true, opacity:0.55 });
+
+    // build a wireframe unit: faint solid fill (occludes far lines) + bright edges
+    function edgeUnit(geo, angle){
+      var g = new THREE.Group();
+      var fill = new THREE.Mesh(geo, occludeMat);
+      var edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, angle == null ? 1 : angle), lineMat);
+      g.add(fill, edges);
+      g.userData.edges = edges;
+      return g;
+    }
+
+    // ================= GIFT BOX =================
+    var boxGroup = new THREE.Group();
+    scene.add(boxGroup);
+
+    var BW = 2.0, BH = 1.15, BD = 2.0;       // box body dims
+    var body = edgeUnit(new THREE.BoxGeometry(BW, BH, BD));
+    body.position.y = BH / 2;                 // sit on y=0 ground
+    boxGroup.add(body);
+
+    // ribbon bands around the body (thin wireframe boxes)
+    var ribMat = lineSoft;
+    function ribbon(w, h, d){
+      var m = new THREE.LineSegments(
+        new THREE.EdgesGeometry(new THREE.BoxGeometry(w, h, d), 1), ribMat);
+      return m;
+    }
+    var ribA = ribbon(0.34, BH + 0.02, BD + 0.03); ribA.position.y = BH / 2; boxGroup.add(ribA);
+    var ribB = ribbon(BW + 0.03, BH + 0.02, 0.34); ribB.position.y = BH / 2; boxGroup.add(ribB);
+
+    // ---- lid on a hinge pivot at the BACK top edge ----
+    var LID_H = 0.32, OVER = 0.12;            // lid thickness + overhang
+    var hinge = new THREE.Object3D();
+    hinge.position.set(0, BH, -BD / 2);       // back top edge of the body
+    boxGroup.add(hinge);
+
+    var lid = edgeUnit(new THREE.BoxGeometry(BW + OVER, LID_H, BD + OVER));
+    lid.position.set(0, LID_H / 2, (BD + OVER) / 2 - OVER / 2); // rest flat, back edge at hinge
+    hinge.add(lid);
+
+    // ribbon over the lid
+    var lidRibA = ribbon(0.34, LID_H + 0.02, BD + OVER + 0.02);
+    lidRibA.position.copy(lid.position); hinge.add(lidRibA);
+    var lidRibB = ribbon(BW + OVER + 0.02, LID_H + 0.02, 0.34);
+    lidRibB.position.copy(lid.position); hinge.add(lidRibB);
+
+    // a little faceted bow on top of the lid (two pyramids)
+    var bow = new THREE.Group();
+    function bowLobe(sx){
+      var loop = new THREE.ConeGeometry(0.3, 0.42, 4);
+      var mm = new THREE.LineSegments(new THREE.EdgesGeometry(loop, 1), lineMat);
+      mm.rotation.z = sx * Math.PI / 2.1;
+      mm.position.x = sx * 0.26;
+      return mm;
+    }
+    bow.add(bowLobe(1), bowLobe(-1));
+    var knot = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.OctahedronGeometry(0.16), 1), lineMat);
+    bow.add(knot);
+    bow.position.copy(lid.position);
+    bow.position.y += LID_H / 2 + 0.02;
+    hinge.add(bow);
+
+    // ================= KAWAII CAT HEAD (original low-poly homage) =================
+    // procedural soft dot sprite for the halftone build-up
+    function makeDotTex(){
+      var s = 64, c = document.createElement('canvas');
+      c.width = c.height = s;
+      var x = c.getContext('2d');
+      var g = x.createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.42, 'rgba(255,255,255,0.5)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = g; x.fillRect(0, 0, s, s);
+      return new THREE.CanvasTexture(c);
+    }
+    var dotTex = makeDotTex();
+
+    var shellFillMat = new THREE.MeshBasicMaterial({ color:0x03040a, transparent:true, opacity:0.82 });
+
+    // wireframe + halftone-dot shell around any geometry (blends both reference styles)
+    function shell(geo, dotGeo, dotSize){
+      var g = new THREE.Group();
+      g.add(new THREE.Mesh(geo, shellFillMat));
+      var wf = new THREE.LineSegments(new THREE.WireframeGeometry(geo), lineSoft.clone());
+      wf.material.opacity = 0.42;
+      g.add(wf);
+      var pts = new THREE.Points(dotGeo || geo, new THREE.PointsMaterial({
+        color:0xffffff, size:dotSize || 0.055, map:dotTex,
+        transparent:true, opacity:0.95, depthWrite:false,
+        blending:THREE.AdditiveBlending, sizeAttenuation:true
+      }));
+      g.add(pts);
+      return g;
+    }
+
+    var head = new THREE.Group();
+    boxGroup.add(head);
+
+    // -- round head, flattened front-to-back, a touch wide --
+    var headGeo = new THREE.IcosahedronGeometry(1.0, 2); headGeo.scale(1.14, 1.0, 0.84);
+    var headDots = new THREE.IcosahedronGeometry(1.0, 3); headDots.scale(1.14, 1.0, 0.84);
+    head.add(shell(headGeo, headDots, 0.052));
+
+    // -- big rounded ears (triangle-with-rounded-tip silhouette) --
+    function ear(sx){
+      var eg = new THREE.ConeGeometry(0.56, 1.02, 4, 1); eg.scale(1, 1, 0.5);
+      var ed = new THREE.ConeGeometry(0.56, 1.02, 8, 3); ed.scale(1, 1, 0.5);
+      var g = shell(eg, ed, 0.045);
+      g.position.set(sx * 0.62, 0.86, -0.04);
+      g.rotation.z = -sx * 0.36;
+      return g;
+    }
+    head.add(ear(1), ear(-1));
+
+    // -- bow on the cat's left ear (viewer's right): clean bright line-art --
+    var bow2 = new THREE.Group();
+    function bowLobe2(sx){
+      var geo = new THREE.ConeGeometry(0.24, 0.4, 3); geo.scale(1, 1, 0.5);
+      var m = new THREE.Group();
+      m.add(new THREE.Mesh(geo, shellFillMat));
+      m.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 1), lineMat));
+      m.rotation.z = sx * Math.PI / 2;
+      m.position.x = sx * 0.2;
+      return m;
+    }
+    bow2.add(bowLobe2(1), bowLobe2(-1));
+    var knotGeo = new THREE.OctahedronGeometry(0.12);
+    bow2.add(new THREE.Mesh(knotGeo, shellFillMat));
+    bow2.add(new THREE.LineSegments(new THREE.EdgesGeometry(knotGeo, 1), lineMat));
+    bow2.position.set(0.66, 1.42, 0.12);
+    bow2.rotation.z = -0.34;
+    head.add(bow2);
+
+    // -- eyes: glowing socket ring + pale eye-white + dark tracking pupil --
+    // (drawn depth-test-free so they always sit cleanly on the face)
+    var ringMat = new THREE.MeshBasicMaterial({
+      color:0xffffff, transparent:true, opacity:0.95, blending:THREE.AdditiveBlending,
+      depthWrite:false, depthTest:false });
+    var whiteMat = new THREE.MeshBasicMaterial({ color:0xe4e9fb, depthTest:false });
+    var glintMat = new THREE.MeshBasicMaterial({ color:0xffffff, depthTest:false });
+    var pupils = [];
+
+    function makeEye(sx){
+      var g = new THREE.Group();
+      var white = new THREE.Mesh(new THREE.CircleGeometry(0.155, 24), whiteMat);
+      white.renderOrder = 10;
+      var ring = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.016, 8, 26), ringMat);
+      ring.renderOrder = 11;
+      var pupilPivot = new THREE.Group();
+      var pupil = new THREE.Mesh(new THREE.CircleGeometry(0.086, 20),
+        new THREE.MeshBasicMaterial({ color:0x000000, depthTest:false }));
+      pupil.renderOrder = 12;
+      var glint = new THREE.Mesh(new THREE.CircleGeometry(0.026, 12), glintMat);
+      glint.position.set(0.03, 0.038, 0.001);
+      glint.renderOrder = 13;
+      pupilPivot.add(pupil, glint);
+      pupilPivot.position.z = 0.012;
+      g.add(white, ring, pupilPivot);
+      g.position.set(sx * 0.33, 0.02, 0.9);
+      g.scale.set(0.9, 1.05, 1);
+      pupils.push(pupilPivot);
+      return g;
+    }
+    head.add(makeEye(-1), makeEye(1));
+
+    // -- little gold nose (no mouth, on purpose) --
+    var noseGeo = new THREE.ConeGeometry(0.07, 0.11, 3);
+    var nose = new THREE.Mesh(noseGeo, new THREE.MeshBasicMaterial({
+      color:0xf0c987, depthTest:false, depthWrite:false }));
+    nose.renderOrder = 10;
+    nose.rotation.x = -Math.PI / 2; nose.position.set(0, -0.14, 0.95);
+    head.add(nose);
+
+    // -- whisker lines, three per cheek --
+    function whisker(sx, yy, dy){
+      var geo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(sx * 0.5, yy, 0.6),
+        new THREE.Vector3(sx * 1.28, yy + dy, 0.16)
+      ]);
+      return new THREE.Line(geo, lineMat);
+    }
+    head.add(
+      whisker(-1, 0.02, 0.14), whisker(-1, -0.1, 0.02), whisker(-1, -0.22, -0.12),
+      whisker(1, 0.02, 0.14), whisker(1, -0.1, 0.02), whisker(1, -0.22, -0.12)
+    );
+
+    // framing — keep the whole scene inside the fixed panel
+    head.position.x = -0.02;
+    boxGroup.rotation.y = -0.4;
+    boxGroup.position.set(-0.15, -0.4, 0);
+    boxGroup.scale.setScalar(0.74);
+
+    // smoothed pupil target + head look
+    var pcx = 0, pcy = 0, hlx = 0, hly = 0;
+    function clampDisc(x, y, r){
+      var d = Math.hypot(x, y);
+      if(d > r){ x = x / d * r; y = y / d * r; }
+      return [x, y];
+    }
+
+    // ================= open animation =================
+    var prefersReducedLocal = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var opened = false, openStart = 0, openProg = 0;
+    var OPEN_MS = 1000;
+
+    function easeInOutCubic(t){ return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2; }
+
+    function triggerOpen(){
+      if(opened) return;
+      opened = true;
+      openStart = performance.now();
+    }
+
+    if(prefersReducedLocal){
+      // reduced motion: render it already open, no lid animation
+      opened = true; openProg = 1;
+    } else {
+      // the canvas is fixed + full-height, so it's in view from the start:
+      // a short delay on load reads the same as "when it scrolls into view",
+      // and an IntersectionObserver backs it up if the first frame is late.
+      setTimeout(triggerOpen, 600);
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ triggerOpen(); io.disconnect(); } });
+      }, { threshold:0.01 });
+      io.observe(canvas);
+    }
+
+    // ================= cursor / touch (drives the eye tracking) =================
+    var mx = 0, my = 0;
+    function aim(cx, cy){
+      mx = (cx / window.innerWidth) * 2 - 1;
+      my = (cy / window.innerHeight) * 2 - 1;
+    }
+    window.addEventListener('mousemove', function(e){ aim(e.clientX, e.clientY); }, { passive:true });
+    window.addEventListener('touchmove', function(e){
+      if(e.touches && e.touches.length){ aim(e.touches[0].clientX, e.touches[0].clientY); }
+    }, { passive:true });
+
+    // ================= resize =================
+    function onResize(){
+      renderer.setSize(cssW(), cssH(), false);
+      camera.aspect = cssW() / cssH();
+      camera.updateProjectionMatrix();
+      placeCamera();
+    }
+    window.addEventListener('resize', onResize);
+
+    // ================= render loop =================
+    var clock = new THREE.Clock();
+    function tick(){
+      requestAnimationFrame(tick);
+      var t = clock.getElapsedTime();
+
+      if(opened && openProg < 1){
+        openProg = Math.min(1, (performance.now() - openStart) / OPEN_MS);
+      }
+      var e = prefersReducedLocal ? 1 : easeInOutCubic(openProg);
+
+      // lid swings up & back on the hinge
+      hinge.rotation.x = -e * 1.95;
+      // head rises out of the box as the lid opens
+      var HEAD_SCALE = 1.05, HEAD_BASE_Y = 1.72;
+      head.scale.setScalar(HEAD_SCALE * (0.02 + e * 0.98));
+      head.position.y = HEAD_BASE_Y + (1 - e) * -1.15;
+
+      // eye tracking — pupils follow the cursor, clamped inside the socket
+      var tx = (prefersReducedLocal || e < 0.6) ? 0 : mx;
+      var ty = (prefersReducedLocal || e < 0.6) ? 0 : my;
+      var ease = prefersReducedLocal ? 0.02 : 0.14;
+      pcx += (tx - pcx) * ease;
+      pcy += (ty - pcy) * ease;
+      var off = clampDisc(pcx * 0.075, -pcy * 0.075, 0.062);
+      for(var i = 0; i < pupils.length; i++){
+        pupils[i].position.x = off[0];
+        pupils[i].position.y = off[1];
+      }
+
+      if(!prefersReducedLocal){
+        boxGroup.rotation.y = -0.42 + Math.sin(t * 0.4) * 0.07;
+        hlx += (mx - hlx) * 0.06;
+        hly += (my - hly) * 0.06;
+        head.rotation.y = hlx * 0.22 + Math.sin(t * 0.5) * 0.03;
+        head.rotation.x = hly * 0.13 + Math.sin(t * 0.7) * 0.015;
+        head.position.y += Math.sin(t * 1.1) * 0.015;
+      }
+
+      renderer.render(scene, camera);
+    }
+    tick();
+  })();
+
+  // ---------------- scroll reveals ----------------
+  (function(){
+    var targets = document.querySelectorAll('.note-inner .note-line, #banner-h, #banner-p, #banner-heart, #banner-kitty');
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('is-visible');
+        }
+      });
+    }, { threshold:0.5, rootMargin:'0px 0px -10% 0px' });
+    targets.forEach(function(t){ observer.observe(t); });
+  })();
+
+  // ---------------- confession scroll + honesty question ----------------
+  (function(){
+    var roll = document.getElementById('scroll-roll');
+    if(!roll) return;
+    var q = document.getElementById('confession-q');
+    var choices = document.getElementById('confession-choices');
+    var btnYes = document.getElementById('btn-yes');
+    var btnNo = document.getElementById('btn-no');
+    var done = document.getElementById('confession-done');
+    var opened = false, answered = false;
+
+    var paper = document.getElementById('scroll-paper');
+    var inner = paper.querySelector('.scroll-paper-inner');
+
+    function openScroll(){
+      if(opened) return;
+      opened = true;
+      roll.classList.add('is-open');
+      roll.setAttribute('aria-expanded', 'true');
+
+      // unroll the parchment (explicit height -> settle to auto so it can reflow
+      // later when the "no" button hops around). Resting state is correct even
+      // if the tween is skipped.
+      var release = function(){
+        paper.style.height = 'auto';
+        paper.removeEventListener('transitionend', release);
+      };
+      if(prefersReduced){
+        paper.style.height = 'auto';
+      } else {
+        paper.style.height = inner.offsetHeight + 'px';
+        paper.addEventListener('transitionend', release);
+        setTimeout(release, 1100);
+      }
+
+      // ~0.5s after the two lines have settled, bring in the question
+      var delay = prefersReduced ? 400 : 1400;
+      setTimeout(function(){
+        q.classList.add('show');
+        q.setAttribute('aria-hidden', 'false');
+      }, delay);
+    }
+
+    roll.addEventListener('click', function(e){
+      if(e.target.closest('.confession-q')) return; // let the buttons work
+      openScroll();
+    });
+    roll.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openScroll(); }
+    });
+
+    // --- the "no" button dodges the cursor, staying in a bounded area ---
+    function dodge(){
+      if(answered) return;
+      var area = choices.getBoundingClientRect();
+      var w = btnNo.offsetWidth, h = btnNo.offsetHeight;
+      var maxX = Math.max(0, area.width - w);
+      var maxY = Math.max(0, area.height - h);
+      var yesX = btnYes.offsetLeft, yesY = btnYes.offsetTop;
+      var nx, ny, tries = 0;
+      do{
+        nx = Math.random() * maxX;
+        ny = Math.random() * maxY;
+        tries++;
+      } while(tries < 40 &&
+              Math.abs(nx - yesX) < w + 24 && Math.abs(ny - yesY) < h + 16);
+      btnNo.style.left = nx + 'px';
+      btnNo.style.top = ny + 'px';
+    }
+    btnNo.addEventListener('mouseenter', dodge);
+    btnNo.addEventListener('touchstart', function(e){ e.preventDefault(); dodge(); }, { passive:false });
+    btnNo.addEventListener('click', function(e){ e.preventDefault(); dodge(); });
+
+    btnYes.addEventListener('click', function(){
+      if(answered) return;
+      answered = true;
+      btnYes.disabled = true;
+      btnNo.style.display = 'none';
+      done.classList.add('show');
+      done.setAttribute('aria-hidden', 'false');
+    });
+  })();
+</script>
+
+</body>
+</html>
